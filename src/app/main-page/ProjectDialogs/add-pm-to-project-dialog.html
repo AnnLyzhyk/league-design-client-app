@@ -1,0 +1,18 @@
+<h1 mat-dialog-title>Додай міема для {{data.projectName}}</h1>
+<div mat-dialog-content>
+  <mat-form-field appearance="fill">
+    <mat-label>PM</mat-label>
+    <mat-select  [(ngModel)]="selectedProjectManager"  >
+      <mat-option *ngFor="let pm of pmList"
+           [value]="pm.projectManagerId">{{pm.projectManagerName}}</mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field appearance="fill">
+    <mat-label>Percent Incclude</mat-label>
+    <input type="number" matInput [(ngModel)]="projectManagerPercent">
+  </mat-form-field>
+</div>
+<div mat-dialog-actions>
+  <button mat-button (click)="onCreateClick()" cdkFocusInitial>Ok</button>
+</div>

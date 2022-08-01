@@ -1,0 +1,18 @@
+<h1 mat-dialog-title>Додай тімліда для {{data.projectName}}</h1>
+<div mat-dialog-content>
+  <mat-form-field appearance="fill">
+    <mat-label>TeamLead</mat-label>
+    <mat-select  [(ngModel)]="selectedTeamLead"  >
+      <mat-option *ngFor="let teamLead of teamLeadList"
+           [value]="teamLead.teamLeadId">{{teamLead.teamLeadName}}</mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field appearance="fill">
+    <mat-label>Percent Incclude</mat-label>
+    <input type="number" matInput [(ngModel)]="teamLeadPercent">
+  </mat-form-field>
+</div>
+<div mat-dialog-actions>
+  <button mat-button (click)="onCreateClick()" cdkFocusInitial>Ok</button>
+</div>

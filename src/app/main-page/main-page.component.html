@@ -1,0 +1,400 @@
+<mat-vertical-stepper [linear]="false" #stepper >
+    <mat-step [stepControl]="firstFormGroup">
+        <ng-template matStepLabel>Оберіть місяць розрахунку</ng-template>
+
+        <mat-form-field appearance="fill">
+          <mat-label>Місяць та рік</mat-label>
+          <input matInput [matDatepicker]="dp" [formControl]="date">
+          <mat-hint>MM/YYYY</mat-hint>
+          <mat-datepicker-toggle matSuffix [for]="dp"></mat-datepicker-toggle>
+          <mat-datepicker #dp
+                          startView="multi-year"
+                          (monthSelected)="setMonthAndYear($event, dp)"
+                          panelClass="example-month-picker">
+          </mat-datepicker>
+        </mat-form-field>
+        <div>
+          <button mat-button matStepperNext (click)="onMonthSelected()">Далі</button>
+        </div>
+    </mat-step>
+
+
+    <mat-step [stepControl]="secondFormGroup">
+        <ng-template matStepLabel>Завантажити дані з teamwork</ng-template>
+        <div *ngIf="dataLoaded | async">
+            <p>Дані за місяць завантажені</p>
+            <p>Останні дані датуються: {{ lastTimeLogDate | async | date:'medium' }}</p>
+            <button mat-button (click)="loadedTimeLogs()">Оновити</button>
+        </div>
+        <div *ngIf="!(dataLoaded | async)">
+          <button mat-button (click)="loadedTimeLogs()" >Завантажити</button>
+        </div>
+        <div *ngIf="timeLogsLoading">
+          <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+        </div>
+        <div *ngIf="!timeLogsLoading && (dataLoaded | async)">
+          <button mat-button matStepperPrevious>Назад</button>
+          <button mat-button matStepperNext (click)="showDesignerData()">Далі</button>
+        </div>
+    </mat-step>
+
+
+    <mat-step [stepControl]="thirdFormGroup">
+        <ng-template matStepLabel>Дані по дизайнерам</ng-template>
+        <mat-form-field appearance="fill">
+          <mat-label>Кількість робочих годин в місяці</mat-label>
+          <input matInput [(ngModel)]="monthWorkHours" (change)="onWorkHoursChange()" >
+        </mat-form-field>
+      <mat-expansion-panel>
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            Дані по кожному дизайнеру
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+
+      <div *ngFor="let designer of designersList">
+        <p> </p>
+        <p>{{designer.firstName + " " + designer.lastName}}</p>
+        <table mat-table [dataSource]="getDataSourse(designer)" class="mat-elevation-z8">
+          <ng-container matColumnDef="firstName">
+            <th mat-header-cell *matHeaderCellDef> First Name </th>
+            <td mat-cell *matCellDef="let element"> {{element.firstName}} </td>
+            <td mat-footer-cell *matFooterCellDef> {{getFooterData("firstName", designer.id)}} </td>
+          </ng-container>
+          <ng-container matColumnDef="lastName">
+            <th mat-header-cell *matHeaderCellDef> Last Name </th>
+            <td mat-cell *matCellDef="let element"> {{element.lastName}} </td>
+            <td mat-footer-cell *matFooterCellDef> {{getFooterData("lastName", designer.id)}} </td>
+          </ng-container>
+          <ng-container matColumnDef="gradeLabel">
+            <th mat-header-cell *matHeaderCellDef> Grade </th>
+            <td mat-cell *matCellDef="let element"> {{element.gradeLabel}} </td>
+            <td mat-footer-cell *matFooterCellDef> {{getFooterData("gradeLabel", designer.id)}} </td>
+          </ng-container>
+          <ng-container matColumnDef="bonusPerHour">
+            <th mat-header-cell *matHeaderCellDef> Bonus Per Hour </th>
+            <td mat-cell *matCellDef="let element"> {{element.bonusPerHour}} </td>
+            <td mat-footer-cell *matFooterCellDef> {{getFooterData("bonusPerHour", designer.id)}} </td>
+          </ng-container>
+          <ng-container matColumnDef="projectName">
+            <th mat-header-cell *matHeaderCellDef> Project Name </th>
+            <td mat-cell *matCellDef="let element"> {{element.projectName}} </td>
+            <td mat-footer-cell *matFooterCellDef> {{getFooterData("projectName", designer.id)}} </td>
+          </ng-container>
+          <ng-container matColumnDef="totalHours">
+            <th mat-header-cell *matHeaderCellDef> Total Hours </th>
+            <td mat-cell *matCellDef="let element"> {{element.totalHours}} </td>
+            <td mat-footer-cell *matFooterCellDef> {{getFooterData("totalHours", designer.id)}} </td>
+          </ng-container>
+
+          <ng-container matColumnDef="realBonus">
+            <th mat-header-cell *matHeaderCellDef> Bonus </th>
+            <td mat-cell *matCellDef="let element"> {{element.realBonus}} </td>
+            <td mat-footer-cell *matFooterCellDef> {{getFooterData("realBonus", designer.id)}} </td>
+          </ng-container>
+
+          <ng-container matColumnDef="realSalary">
+            <th mat-header-cell *matHeaderCellDef> Salary </th>
+            <td mat-cell *matCellDef="let element">  </td>
+            <td mat-footer-cell *matFooterCellDef> {{getFooterData("realSalary", designer.id)}} </td>
+          </ng-container>
+
+          <ng-container matColumnDef="summary">
+            <th mat-header-cell *matHeaderCellDef> Summary </th>
+            <td mat-cell *matCellDef="let element">  </td>
+            <td mat-footer-cell *matFooterCellDef> {{getFooterData("summary", designer.id)}} </td>
+          </ng-container>
+
+
+
+          <tr mat-header-row *matHeaderRowDef="projectsInDesignerDisplayedColumns"></tr>
+          <tr mat-row *matRowDef="let row;  columns: projectsInDesignerDisplayedColumns;"></tr>
+          <tr mat-footer-row *matFooterRowDef="projectsInDesignerDisplayedColumns;"></tr> <!-- sticky: true-->
+        </table>
+      </div>
+    </mat-expansion-panel>
+      <p></p>
+      <button mat-button matStepperPrevious>Назад</button>
+      <button mat-button matStepperNext (click)="showTeamLeadData()">Далі</button>
+    </mat-step>
+
+
+    <mat-step [stepControl]="fourthFormGroup">
+        <ng-template matStepLabel>Дані по доходам проектів</ng-template>
+        <mat-form-field appearance="fill">
+          <mat-label>Кількість робочих годин в місяці</mat-label>
+          <input matInput  [(ngModel)]="monthWorkHours" (change)="onWorkHoursChange()" >
+        </mat-form-field>
+
+      <table mat-table [dataSource]="projectsData" class="mat-elevation-z8">
+        <ng-container matColumnDef="projectName">
+          <th mat-header-cell *matHeaderCellDef> Project Name</th>
+          <td mat-cell *matCellDef="let element"> {{element.projectName}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="billibleHour">
+          <th mat-header-cell *matHeaderCellDef> Billible Hour</th>
+          <td mat-cell *matCellDef="let element"> {{element.billibleHour}} </td>
+        </ng-container>
+        <ng-container matColumnDef="rate">
+          <th mat-header-cell *matHeaderCellDef class="rate-control"> Rate</th>
+          <td mat-cell *matCellDef="let element">
+            <input type="number" matInput  [(ngModel)]="element.rate" (change)="onRateChange(element)">
+            </td>
+        </ng-container>
+        <ng-container matColumnDef="income">
+          <th mat-header-cell *matHeaderCellDef> Income</th>
+          <td mat-cell *matCellDef="let element">
+            <input type="number" matInput  [(ngModel)]="element.income" (change)="onIncomeChange(element)" >
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="teamLeads">
+          <th mat-header-cell *matHeaderCellDef> Team Leads </th>
+          <td mat-cell *matCellDef="let element">
+            <mat-chip-list aria-label="Fish selection">
+              <mat-chip *ngFor="let teamLead of element.teamLeads" (removed)="removeTeamLeadfromProject(element, teamLead)" >
+                {{teamLead.teamLeadName + " " + teamLead.percent + "%"}}
+                <button matChipRemove>
+                  <mat-icon>cancel</mat-icon>
+                </button>
+              </mat-chip>
+            </mat-chip-list>
+            <button mat-mini-fab color="primary" (click)="addTeamLeadToProject(element)"><mat-icon>add</mat-icon></button>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="projectManagers">
+          <th mat-header-cell *matHeaderCellDef> PMs </th>
+          <td mat-cell *matCellDef="let element">
+            <mat-chip-list aria-label="Fish selection">
+              <mat-chip *ngFor="let pm of element.projectManagers" (removed)="removePMfromProject(element, pm)" >
+                {{pm.projectManagerName + " " + pm.percent + "%"}}
+                <button matChipRemove>
+                  <mat-icon>cancel</mat-icon>
+                </button>
+              </mat-chip>
+            </mat-chip-list>
+            <button mat-mini-fab color="primary" (click)="addPmToProject(element)"><mat-icon>add</mat-icon></button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="projectsDisplayedColumns"></tr>
+        <tr mat-row *matRowDef="let row;  columns: projectsDisplayedColumns;"></tr>
+      </table>
+
+
+
+      <button mat-button matStepperPrevious>Назад</button>
+      <button mat-button matStepperNext (click)="saveIncomeProjectData()">Далі</button>
+
+    </mat-step>
+
+
+    <mat-step [stepControl]="fifthFormgroup">
+
+        <ng-template matStepLabel>Дані по витратам проектів</ng-template>
+        <mat-form-field appearance="fill">
+          <mat-label>Кількість робочих годин в місяці</mat-label>
+          <input matInput  [(ngModel)]="monthWorkHours" (change)="onWorkHoursChange()" >
+        </mat-form-field>
+
+
+
+      <table mat-table [dataSource]="projectsData" class="mat-elevation-z8">
+        <ng-container matColumnDef="projectName">
+          <th mat-header-cell *matHeaderCellDef> Project Name</th>
+          <td mat-cell *matCellDef="let element"> {{element.projectName}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="billibleHour">
+          <th mat-header-cell *matHeaderCellDef> Billible Hour</th>
+          <td mat-cell *matCellDef="let element"> {{element.billibleHour}} </td>
+        </ng-container>
+        <ng-container matColumnDef="costFromDesigner">
+          <th mat-header-cell *matHeaderCellDef> cost Designer Salary</th>
+          <td mat-cell *matCellDef="let element"> {{element.costFromDesigner}} </td>
+        </ng-container>
+        <ng-container matColumnDef="costPMSalary">
+          <th mat-header-cell *matHeaderCellDef> cost PMS Salary</th>
+          <td mat-cell *matCellDef="let element"> {{element.costPMSalary}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="costAdditional">
+          <th mat-header-cell *matHeaderCellDef> cost Additional</th>
+          <td mat-cell *matCellDef="let element">
+            <input type="number" matInput  (change)="onCostChange(element)" [(ngModel)]="element.costAdditional" >
+             </td>
+        </ng-container>
+
+        <ng-container matColumnDef="profit">
+          <th mat-header-cell *matHeaderCellDef> Profit</th>
+          <td mat-cell *matCellDef="let element"> {{element.profit}} </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="projectsCostDisplayedColumns"></tr>
+        <tr mat-row *matRowDef="let row;  columns: projectsCostDisplayedColumns;"></tr>
+      </table>
+      <button mat-button matStepperPrevious>Назад</button>
+      <button mat-button matStepperNext (click)="saveCostProjectData()">Далі</button>
+
+    </mat-step>
+
+
+    <mat-step [stepControl]="sixthFormGroup">
+
+      <ng-template matStepLabel>Бонус Тімлідів</ng-template>
+      <div *ngFor="let tl of teamLeadShortList">
+        <p> </p>
+        <p>{{tl.teamLeadName}}</p>
+        <table mat-table [dataSource]="getTeamleadBonuSourse(tl)" class="mat-elevation-z8">
+          <ng-container matColumnDef="teamLeadName">
+            <th mat-header-cell *matHeaderCellDef> Name </th>
+            <td mat-cell *matCellDef="let element"> {{element.teamLeadName}} </td>
+            <td mat-footer-cell *matFooterCellDef> {{getTlBonusColumnFooterData("teamLeadName", tl.teamLeadId)}} </td>
+          </ng-container>
+          <ng-container matColumnDef="projectName">
+            <th mat-header-cell *matHeaderCellDef> Project Name </th>
+            <td mat-cell *matCellDef="let element"> {{element.projectName}} </td>
+            <td mat-footer-cell *matFooterCellDef> {{getTlBonusColumnFooterData("projectName", tl.teamLeadId)}} </td>
+          </ng-container>
+          <ng-container matColumnDef="projectIncome">
+            <th mat-header-cell *matHeaderCellDef> Project Income </th>
+            <td mat-cell *matCellDef="let element"> {{element.projectIncome}} </td>
+            <td mat-footer-cell *matFooterCellDef> {{getTlBonusColumnFooterData("projectIncome", tl.teamLeadId)}} </td>
+          </ng-container>
+          <ng-container matColumnDef="projectCosts">
+            <th mat-header-cell *matHeaderCellDef> Project Cost </th>
+            <td mat-cell *matCellDef="let element"> {{element.projectCosts}} </td>
+            <td mat-footer-cell *matFooterCellDef> {{getTlBonusColumnFooterData("projectCosts", tl.teamLeadId)}} </td>
+          </ng-container>
+          <ng-container matColumnDef="projectProfit">
+            <th mat-header-cell *matHeaderCellDef> Project Profit </th>
+            <td mat-cell *matCellDef="let element"> {{element.projectProfit}} </td>
+            <td mat-footer-cell *matFooterCellDef> {{getTlBonusColumnFooterData("projectProfit", tl.teamLeadId)}} </td>
+          </ng-container>
+          <ng-container matColumnDef="teamLeadPart">
+            <th mat-header-cell *matHeaderCellDef> Teamlead Part </th>
+            <td mat-cell *matCellDef="let element"> {{element.teamLeadPart}} </td>
+            <td mat-footer-cell *matFooterCellDef> {{getTlBonusColumnFooterData("teamLeadPart", tl.teamLeadId)}} </td>
+          </ng-container>
+
+          <ng-container matColumnDef="teamLeadBonus">
+            <th mat-header-cell *matHeaderCellDef> Bonus </th>
+            <td mat-cell *matCellDef="let element"> {{element.teamLeadBonus}} </td>
+            <td mat-footer-cell *matFooterCellDef> {{getTlBonusColumnFooterData("teamLeadBonus", tl.teamLeadId)}} </td>
+          </ng-container>
+
+
+          <tr mat-header-row *matHeaderRowDef="teamleadsBonusColumns"></tr>
+          <tr mat-row *matRowDef="let row;  columns: teamleadsBonusColumns;"></tr>
+          <tr mat-footer-row *matFooterRowDef="teamleadsBonusColumns;"></tr> <!-- sticky: true-->
+        </table>
+      </div>
+
+    <button mat-button matStepperPrevious>Назад</button>
+    <button mat-button matStepperNext (click)="calcPMsBonus()">Далі</button>
+
+  </mat-step>
+
+
+  <mat-step [stepControl]="seventhFormGroup">
+
+    <ng-template matStepLabel>Бонус Піемів</ng-template>
+    <div *ngFor="let pm of pmsShortList">
+      <p> </p>
+      <p>{{pm.projectManagerName}}</p>
+      <table mat-table [dataSource]="getPMBonusSourse(pm)" class="mat-elevation-z8">
+        <ng-container matColumnDef="pmName">
+          <th mat-header-cell *matHeaderCellDef> Name </th>
+          <td mat-cell *matCellDef="let element"> {{element.pmName}} </td>
+          <td mat-footer-cell *matFooterCellDef> {{getPmBonusColumnFooterData("pmName", pm.projectManagerId)}} </td>
+        </ng-container>
+        <ng-container matColumnDef="projectName">
+          <th mat-header-cell *matHeaderCellDef> Project Name </th>
+          <td mat-cell *matCellDef="let element"> {{element.projectName}} </td>
+          <td mat-footer-cell *matFooterCellDef> {{getPmBonusColumnFooterData("projectName", pm.projectManagerId)}} </td>
+        </ng-container>
+        <ng-container matColumnDef="projectIncome">
+          <th mat-header-cell *matHeaderCellDef> Project Income </th>
+          <td mat-cell *matCellDef="let element"> {{element.projectIncome}} </td>
+          <td mat-footer-cell *matFooterCellDef> {{getPmBonusColumnFooterData("projectIncome", pm.projectManagerId)}} </td>
+        </ng-container>
+        <ng-container matColumnDef="projectCosts">
+          <th mat-header-cell *matHeaderCellDef> Project Cost </th>
+          <td mat-cell *matCellDef="let element"> {{element.projectCosts}} </td>
+          <td mat-footer-cell *matFooterCellDef> {{getPmBonusColumnFooterData("projectCosts", pm.projectManagerId)}} </td>
+        </ng-container>
+        <ng-container matColumnDef="projectProfit">
+          <th mat-header-cell *matHeaderCellDef> Project Profit </th>
+          <td mat-cell *matCellDef="let element"> {{element.projectProfit}} </td>
+          <td mat-footer-cell *matFooterCellDef> {{getPmBonusColumnFooterData("projectProfit", pm.projectManagerId)}} </td>
+        </ng-container>
+        <ng-container matColumnDef="pmPart">
+          <th mat-header-cell *matHeaderCellDef> PM Part </th>
+          <td mat-cell *matCellDef="let element"> {{element.pmPart}} </td>
+          <td mat-footer-cell *matFooterCellDef> {{getPmBonusColumnFooterData("pmPart", pm.projectManagerId)}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="pmBonus">
+          <th mat-header-cell *matHeaderCellDef> Bonus </th>
+          <td mat-cell *matCellDef="let element"> {{element.pmBonus}} </td>
+          <td mat-footer-cell *matFooterCellDef> {{getPmBonusColumnFooterData("pmBonus", pm.projectManagerId)}} </td>
+        </ng-container>
+
+
+        <tr mat-header-row *matHeaderRowDef="pmsBonusColumns"></tr>
+        <tr mat-row *matRowDef="let row;  columns: pmsBonusColumns;"></tr>
+        <tr mat-footer-row *matFooterRowDef="pmsBonusColumns;"></tr> <!-- sticky: true-->
+      </table>
+    </div>
+
+  <button mat-button matStepperPrevious>Назад</button>
+  <button mat-button matStepperNext (click)="GetDataForSales()">Далі</button>
+
+</mat-step>
+
+
+
+<mat-step [stepControl]="eightthFormGroup">
+  <ng-template matStepLabel>Дані по тижням</ng-template>
+
+
+  <table mat-table [dataSource]="hoursPerWeekData" class="mat-elevation-z8">
+    <ng-container matColumnDef="projectId">
+      <th mat-header-cell *matHeaderCellDef> Project Id</th>
+      <td mat-cell *matCellDef="let element"> {{element.projectId}} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="projectName">
+      <th mat-header-cell *matHeaderCellDef> Project Name</th>
+      <td mat-cell *matCellDef="let element"> {{element.projectName}} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="firstWeeks">
+      <th mat-header-cell *matHeaderCellDef class="rate-control"> {{firstWeekCaption}}</th>
+      <td mat-cell *matCellDef="let element"> {{element.firstWeeks}} </td>
+    </ng-container>
+    <ng-container matColumnDef="beforeLastWeek">
+      <th mat-header-cell *matHeaderCellDef class="rate-control"> {{beforeLastWeekCaption}}</th>
+      <td mat-cell *matCellDef="let element"> {{element.beforeLastWeek}} </td>
+    </ng-container>
+    <ng-container matColumnDef="lastWeek">
+      <th mat-header-cell *matHeaderCellDef class="rate-control"> {{lastWeekCaption}}</th>
+      <td mat-cell *matCellDef="let element"> {{element.lastWeek}} </td>
+    </ng-container>
+
+
+    <tr mat-header-row *matHeaderRowDef="hoursPerWeekDataColumns"></tr>
+    <tr mat-row *matRowDef="let row;  columns: hoursPerWeekDataColumns;"></tr>
+  </table>
+
+
+
+<button mat-button matStepperPrevious>Назад</button>
+<button mat-button matStepperNext >Далі</button>
+
+</mat-step>
+
+
+</mat-vertical-stepper>
