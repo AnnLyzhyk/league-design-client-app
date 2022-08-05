@@ -7,8 +7,8 @@ import { DesignerInfo, ProjectInDesignerInfo, ProjectModel, ProjectPM, ProjectTe
 })
 export class DataService {
 
-//  private baseUrl = "http://localhost:5003/api/";
-  private baseUrl = "https://ldsalaryapi.azurewebsites.net/api/";
+ private baseUrl = "http://localhost:5003/api/";
+ // private baseUrl = "https://ldsalaryapi.azurewebsites.net/api/";
   constructor(private http: HttpClient) { }
 
 

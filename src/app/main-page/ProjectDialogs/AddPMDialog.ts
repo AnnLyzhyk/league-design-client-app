@@ -31,6 +31,7 @@ export class AddPmToProjectDialog {
   onCreateClick():void{
     var pm = this.pmList.find(t=> t.projectManagerId == this.selectedProjectManager) as ProjectPM
     this.data.projectManagers.push({
+      projectId: this.data.projectId,
       projectManagerId: this.selectedProjectManager,
       projectManagerName: pm.projectManagerName,
       percent: this.projectManagerPercent,

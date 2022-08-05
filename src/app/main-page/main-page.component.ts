@@ -205,7 +205,18 @@ export class MainPageComponent implements OnInit {
     const month = ctrlValue.month() + 1;
     const year = ctrlValue.year();
     this.dataService.GetAllProjects(month, year)
-        .subscribe(p => this.projectsData = p)
+        .subscribe(p => {
+          this.projectsData = p.map(p => {
+              const proj = new ProjectModel();
+              proj.billibleHour = p.billibleHour;
+              proj.projectId = p.projectId;
+              proj.projectName = p.projectName;
+              proj.rate = p.rate;
+              proj.teamLeads = p.teamLeads;
+              proj.projectManagers = p.projectManagers;
+              proj.income = Number((p.rate * p.billibleHour).toFixed(2))
+              return proj; })
+      })
   }
 
 
@@ -225,7 +236,7 @@ export class MainPageComponent implements OnInit {
   }
   onIncomeChange(project: ProjectModel){
     console.log('onIncomeChange')
-    project.rate = Number((project.income * project.billibleHour).toFixed(2));
+    project.rate = Number((project.income / project.billibleHour).toFixed(2));
   }
 
   removeTeamLeadfromProject(project: ProjectModel, teamLead: ProjectTeamLead){
@@ -306,7 +317,7 @@ export class MainPageComponent implements OnInit {
         p.costFromDesigner = Number(costList
               .filter(pc => pc.projectId == p.projectId)
               .reduce((a ,c)=> a + c.cost + c.internalCost, 0).toFixed(2));
-        p.profit = p.income - p.costFromDesigner;
+        p.profit = Number((p.income - p.costFromDesigner - p.costPMSalary ?? 0 - p.costAdditional?? 0 ).toFixed(2));
     });
 
   }
@@ -355,7 +366,7 @@ export class MainPageComponent implements OnInit {
     projectsCostDisplayedColumns: string[] = ['projectName', 'billibleHour','costFromDesigner', 'costPMSalary', 'costAdditional', 'profit']
 
     onCostChange(project: ProjectModel){
-      project.profit = project.income - project.costFromDesigner - project.costPMSalary - project.costAdditional;
+      project.profit = Number((project.income - project.costFromDesigner - project.costPMSalary - project.costAdditional).toFixed(2));
     }
 
     saveCostProjectData(){
@@ -383,8 +394,8 @@ export class MainPageComponent implements OnInit {
               tl.push({
                   teamLeadId: ptl.teamLeadId,
                   teamLeadName: ptl.teamLeadName,
-                  projectId: p.projectId,
-                  projectName: p.projectName,
+                  projectId: p.projectId!,
+                  projectName: p.projectName!,
                   projectCosts: p.costAdditional + p.costFromDesigner + p.costPMSalary,
                   projectIncome: p.income,
                   projectProfit: p.profit,
@@ -447,13 +458,13 @@ export class MainPageComponent implements OnInit {
               tl.push({
                   pmId: ppm.projectManagerId,
                   pmName: ppm.projectManagerName,
-                  projectId: p.projectId,
-                  projectName: p.projectName,
+                  projectId: p.projectId!,
+                  projectName: p.projectName!,
                   projectCosts: p.costAdditional + p.costFromDesigner + p.costPMSalary,
                   projectIncome: p.income,
                   projectProfit: p.profit,
                   pmPart: ppm.percent,
-                  pmBonus: Number((p.profit * ppm.percent/100 * 0.05).toFixed(2))
+                  pmBonus: Number((p.profit * ppm.percent/100 * 0.07).toFixed(2))
               });
             });
             return tl;

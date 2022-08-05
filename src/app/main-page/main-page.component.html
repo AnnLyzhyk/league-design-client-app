@@ -115,10 +115,10 @@
     </mat-expansion-panel>
       <p></p>
       <button mat-button matStepperPrevious>Назад</button>
-      <button mat-button matStepperNext (click)="showTeamLeadData()">Далі</button>
+      <button mat-button matStepperNext (click)="GetDataForSales()">Далі</button>
     </mat-step>
 
-
+<!--
     <mat-step [stepControl]="fourthFormGroup">
         <ng-template matStepLabel>Дані по доходам проектів</ng-template>
         <mat-form-field appearance="fill">
@@ -288,7 +288,7 @@
 
           <tr mat-header-row *matHeaderRowDef="teamleadsBonusColumns"></tr>
           <tr mat-row *matRowDef="let row;  columns: teamleadsBonusColumns;"></tr>
-          <tr mat-footer-row *matFooterRowDef="teamleadsBonusColumns;"></tr> <!-- sticky: true-->
+          <tr mat-footer-row *matFooterRowDef="teamleadsBonusColumns;"></tr>
         </table>
       </div>
 
@@ -345,7 +345,7 @@
 
         <tr mat-header-row *matHeaderRowDef="pmsBonusColumns"></tr>
         <tr mat-row *matRowDef="let row;  columns: pmsBonusColumns;"></tr>
-        <tr mat-footer-row *matFooterRowDef="pmsBonusColumns;"></tr> <!-- sticky: true-->
+        <tr mat-footer-row *matFooterRowDef="pmsBonusColumns;"></tr>
       </table>
     </div>
 
@@ -354,7 +354,7 @@
 
 </mat-step>
 
-
+-->
 
 <mat-step [stepControl]="eightthFormGroup">
   <ng-template matStepLabel>Дані по тижням</ng-template>

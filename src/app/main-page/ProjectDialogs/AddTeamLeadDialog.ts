@@ -30,6 +30,7 @@ export class AddTeamLeadToProjectDialog {
 
   onCreateClick():void{
     this.data.teamLeads.push({
+      projectId: this.data.projectId,
       teamLeadId: this.selectedTeamLead,
       teamLeadName: (this.teamLeadList.find(t=> t.teamLeadId == this.selectedTeamLead) as ProjectTeamLead).teamLeadName,
       percent: this.teamLeadPercent });

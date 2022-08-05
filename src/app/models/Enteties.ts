@@ -48,24 +48,25 @@ export interface ProjectInDesignerInfo{
   summary: number;
 }
 
-export interface ProjectModel{
-  projectId: string;
-  projectName: string;
-  rate: number;
-  billibleHour: number;
-  income: number;
-  teamLeads: ProjectTeamLead[];
-  projectManagers: ProjectPM[];
-  costFromDesigner: number;
-  costPMSalary: number;
-  costAdditional: number;
-  profit: number;
+export class ProjectModel{
+  projectId?: string;
+  projectName?: string;
+  rate: number = 0;
+  billibleHour: number = 0;
+  income: number = 0;
+  teamLeads: ProjectTeamLead[] = [];
+  projectManagers: ProjectPM[] = [];
+  costFromDesigner: number = 0;
+  costPMSalary: number = 0;
+  costAdditional: number = 0;
+  profit: number = 0;
 }
 
 export interface ProjectTeamLead{
   teamLeadId: string;
   teamLeadName: string;
   percent: number;
+  projectId?: string;
 }
 
 export interface ProjectPM{
@@ -73,6 +74,7 @@ export interface ProjectPM{
   projectManagerName: string;
   percent: number;
   currentRate: number;
+  projectId?: string;
 }
 
 
