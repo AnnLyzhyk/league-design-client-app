@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { PanelService } from '../panel.service';
 
 @Component({
   selector: 'side-menu',
@@ -7,9 +8,13 @@ import { Component, OnInit } from '@angular/core';
 })
 export class SideMenuComponent implements OnInit {
 
-  constructor() { }
+  constructor(private panelService: PanelService) { }
 
   ngOnInit(): void {
+  }
+
+  showPanel(panelName: string){
+      this.panelService.changePanel(panelName);
   }
 
 }

@@ -1,4 +1,4 @@
-<mat-vertical-stepper [linear]="false" #stepper >
+<mat-vertical-stepper *ngIf="activePanel=='calculate'" [linear]="false" #stepper >
     <mat-step [stepControl]="firstFormGroup">
         <ng-template matStepLabel>Оберіть місяць розрахунку</ng-template>
 
@@ -398,3 +398,151 @@
 
 
 </mat-vertical-stepper>
+
+<div *ngIf="activePanel=='designers'">
+  <article class="table-designers-header">
+    <button class="button-add-row" mat-button (click)="addNewDesigner()">Додати працівника</button>
+    <button class="button-add-row" mat-button (click)="saveDesignerChanges()">Зберегти зміни</button>
+  </article>
+  <table mat-table [dataSource]="designersData">
+    <ng-container [matColumnDef]="col.key" *ngFor="let col of designersColumnsSchema">
+      <th mat-header-cell *matHeaderCellDef>
+        {{ col.label }}
+      </th>
+      <td mat-cell *matCellDef="let element">
+        <div [ngSwitch]="col.type" *ngIf="!element.isEdit">
+          <div class="btn-edit" *ngSwitchCase="'isEdit'">
+            <button mat-button (click)="element.isEdit = !element.isEdit"> Змінити </button>
+            <button mat-button class="button-remove" (click)="removeDesigner(element.id)" > Видалити </button>
+            <button mat-mini-fab  [ngClass]="{'button-connect-success': element.teamWorkId != '', 'button-connect-error' : element.teamWorkId == '' }"
+             (click)="connectDesiner(element)"  [matTooltip]="element.teamWorkId != '' ? 'Запис прив\'язано' : 'Прив\'язка в TW відсутня'">
+              <mat-icon *ngIf="element.teamWorkId != ''">check</mat-icon>
+              <mat-icon *ngIf="element.teamWorkId == ''">close</mat-icon>
+            </button>
+          </div>
+          <span *ngSwitchDefault>
+            {{ element[col.key] }}
+          </span>
+        </div>
+        <div [ngSwitch]="col.type" *ngIf="element.isEdit">
+          <div class="btn-edit" *ngSwitchCase="'isEdit'">
+            <button mat-button (click)="element.isEdit = !element.isEdit">
+              Зберегти
+            </button>
+          </div>
+          <mat-form-field  class="form-input" *ngSwitchCase="'spec'"  appearance="standard" >
+            <mat-select  [(ngModel)]="element[col.key]" >
+              <mat-option *ngFor="let animal of specializations" [value]="animal">
+                {{animal}}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field  class="form-input" *ngSwitchCase="'grade'"  appearance="standard" >
+            <mat-select  [(ngModel)]="element[col.key]" >
+              <mat-option *ngFor="let animal of grades" [value]="animal">
+                {{animal}}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field  class="form-input" *ngSwitchCase="'position'"  appearance="standard" >
+            <mat-select  [(ngModel)]="element[col.key]" >
+              <mat-option *ngFor="let animal of PositionTeamlead" [value]="animal">
+                {{animal}}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+
+
+          <mat-form-field class="form-input" *ngSwitchDefault>
+            <input [type]="col.type" matInput [(ngModel)]="element[col.key]" />
+          </mat-form-field>
+        </div>
+      </td>
+    </ng-container>
+    <tr mat-header-row *matHeaderRowDef="displayedDesignersColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedDesignersColumns"></tr>
+  </table>
+</div>
+
+<div *ngIf="activePanel=='payments'">
+  <div>
+    <div class="table-designers-header">
+      <span> Сітка бази бонусів</span>
+      <button class="button-add-row" mat-button (click)="savePaymentData()">Зберегти зміни</button>
+    </div>
+    <table mat-table [dataSource]="bonusRatesData">
+      <ng-container [matColumnDef]="col.key" *ngFor="let col of bonusRatesColumnsSchema">
+        <th mat-header-cell *matHeaderCellDef>
+          {{ col.label }}
+        </th>
+        <td mat-cell *matCellDef="let element">
+          <div [ngSwitch]="col.type" *ngIf="!element.isEdit">
+            <div class="btn-edit" *ngSwitchCase="'isEdit'">
+              <button mat-button (click)="element.isEdit = !element.isEdit"> Змінити </button>
+            </div>
+            <span *ngSwitchDefault>
+              {{ element[col.key] }}
+            </span>
+          </div>
+          <div [ngSwitch]="col.type" *ngIf="element.isEdit">
+            <div class="btn-edit" *ngSwitchCase="'isEdit'">
+              <button mat-button (click)="element.isEdit = !element.isEdit">
+                Зберегти
+              </button>
+            </div>
+
+            <span *ngSwitchCase="'label'">
+              {{ element[col.key] }}
+            </span>
+            <mat-form-field class="form-input" *ngSwitchDefault>
+              <input [type]="col.type" matInput [(ngModel)]="element[col.key]" />
+            </mat-form-field>
+          </div>
+        </td>
+      </ng-container>
+      <tr mat-header-row *matHeaderRowDef="displayedBonusRatesColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedBonusRatesColumns"></tr>
+    </table>
+  </div>
+  <div>
+    <div>
+     <span>Сітка бази заробітньої плати</span>
+    </div>
+    <table mat-table [dataSource]="salaryBaseData">
+      <ng-container [matColumnDef]="col.key" *ngFor="let col of salaryBaseColumnsSchema">
+        <th mat-header-cell *matHeaderCellDef>
+          {{ col.label }}
+        </th>
+        <td mat-cell *matCellDef="let element">
+          <div [ngSwitch]="col.type" *ngIf="!element.isEdit">
+            <div class="btn-edit" *ngSwitchCase="'isEdit'">
+              <button mat-button (click)="element.isEdit = !element.isEdit"> Змінити </button>
+            </div>
+            <span *ngSwitchDefault>
+              {{ element[col.key] }}
+            </span>
+          </div>
+          <div [ngSwitch]="col.type" *ngIf="element.isEdit">
+            <div class="btn-edit" *ngSwitchCase="'isEdit'">
+              <button mat-button (click)="element.isEdit = !element.isEdit">
+                Зберегти
+              </button>
+            </div>
+
+            <span *ngSwitchCase="'label'">
+              {{ element[col.key] }}
+            </span>
+            <mat-form-field class="form-input" *ngSwitchDefault>
+              <input [type]="col.type" matInput [(ngModel)]="element[col.key]" />
+            </mat-form-field>
+          </div>
+        </td>
+      </ng-container>
+      <tr mat-header-row *matHeaderRowDef="displayedsalaryBaseColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedsalaryBaseColumns"></tr>
+    </table>
+  </div>
+
+
+
+</div>

@@ -1,14 +1,16 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { DesignerInfo, ProjectInDesignerInfo, ProjectModel, ProjectPM, ProjectTeamLead, ProjectWeekData } from '../models/Enteties';
+import { BonusRateModel, Designer, DesignerEntity, DesignerInfo, ProjectInDesignerInfo, ProjectModel, ProjectPM, ProjectTeamLead, ProjectWeekData, SalaryBasesModel } from '../models/Enteties';
 
 @Injectable({
   providedIn: 'root'
 })
 export class DataService {
 
- //private baseUrl = "http://localhost:5003/api/";
-  private baseUrl = "https://ldsalaryapi.azurewebsites.net/api/";
+
+
+ // private baseUrl = "http://localhost:5003/api/";
+ private baseUrl = "https://ldsalaryapi.azurewebsites.net/api/";
   constructor(private http: HttpClient) { }
 
 
@@ -65,6 +67,35 @@ export class DataService {
     return this.http.post<ProjectWeekData[]>(this.baseUrl + "SalaryCalculator/GetSalesDataByWeek",
     {month: month, year: year});
 
+  }
+
+
+  getAllDesigners(){
+    return this.http.get<DesignerEntity[]>(this.baseUrl + "SystemData/GetAllDesigners")
+  }
+
+  UpdateDesignersData(data: DesignerEntity[]) {
+    return this.http.post(this.baseUrl + "SystemData/UpdateDesigners", data);
+  }
+
+  getIdByEmail(email: string){
+    return this.http.get<string>(this.baseUrl + "SystemData/GetIdByEmail",{params: {email: email}} );
+  }
+
+  getBonusRates() {
+    return this.http.get<BonusRateModel[]>(this.baseUrl + "SystemData/GetBonusRates")
+  }
+
+  getSalaryBases() {
+    return this.http.get<SalaryBasesModel[]>(this.baseUrl + "SystemData/GetSalaryBases")
+  }
+
+  updateBonusRates(data: BonusRateModel[]) {
+    return this.http.post(this.baseUrl + "SystemData/UpdateBonusRates", data);
+  }
+
+  updateSalaryBases(data: SalaryBasesModel[]) {
+    return this.http.post(this.baseUrl + "SystemData/UpdateSalaryBases", data);
   }
 
 }

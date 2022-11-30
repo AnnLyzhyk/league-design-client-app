@@ -18,7 +18,7 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatSelectModule } from '@angular/material/select';
-
+import {MatTooltipModule} from '@angular/material/tooltip';
 
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpClientModule } from '@angular/common/http';
@@ -28,6 +28,7 @@ import { MainPageComponent } from './main-page/main-page.component';
 import { SideMenuComponent } from './side-menu/side-menu.component';
 import { AddPmToProjectDialog } from './main-page/ProjectDialogs/AddPMDialog';
 import { AddTeamLeadToProjectDialog } from './main-page/ProjectDialogs/AddTeamLeadDialog';
+import { ConnectDesignerComponent } from './connect-designer/connect-designer.component';
 
 
 
@@ -40,7 +41,8 @@ import { AddTeamLeadToProjectDialog } from './main-page/ProjectDialogs/AddTeamLe
     MainPageComponent,
     SideMenuComponent,
     AddPmToProjectDialog,
-    AddTeamLeadToProjectDialog
+    AddTeamLeadToProjectDialog,
+    ConnectDesignerComponent
 
   ],
   imports: [
@@ -63,7 +65,8 @@ import { AddTeamLeadToProjectDialog } from './main-page/ProjectDialogs/AddTeamLe
     MatExpansionModule,
     MatChipsModule,
     MatDialogModule,
-    MatSelectModule
+    MatSelectModule,
+    MatTooltipModule
 
   ],
   providers: [],

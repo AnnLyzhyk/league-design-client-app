@@ -139,3 +139,35 @@ export interface ProjectWeekData
   beforeLastWeekCaption: string
   lastWeekCaption: string
 }
+
+
+
+export interface DesignerEntity
+{
+  id: number,
+  firstName: string,
+  lastName: string,
+  position: string,
+  grade: number,
+  gradeName: string,
+  specialization: number,
+  specializationName: string,
+  isTeamLead: string
+  teamWorkId: string
+}
+
+export interface BonusRateModel
+{
+  grade: number,
+  gradeName: string,
+  specialization: number,
+  specializationName: string,
+  base: number
+}
+
+export interface SalaryBasesModel
+{
+  specialization: number,
+  specializationName: string,
+  base: number
+}

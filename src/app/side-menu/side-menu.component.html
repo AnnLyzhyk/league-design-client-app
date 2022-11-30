@@ -1,3 +1,11 @@
-<button mat-button class="menu-button">
-  <span>Розрахунок зп</span>
+<button mat-button class="menu-button" (click)="showPanel('calculate')">
+  <span class="menu-item" >Розрахунок зп</span>
+
 </button>
+<button mat-button class="menu-button" (click)="showPanel('designers')">
+  <span class="menu-item">Дизайнери</span>
+</button>
+<button mat-button class="menu-button" (click)="showPanel('payments')">
+  <span class="menu-item">Сітка виплат</span>
+</button>
+

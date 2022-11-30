@@ -6,9 +6,11 @@ import { DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE } from '@angular/materia
 import { MatDatepicker } from '@angular/material/datepicker';
 import { MatDialog } from '@angular/material/dialog';
 import * as moment from 'moment';
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
+import { ConnectDesignerComponent } from '../connect-designer/connect-designer.component';
 import { DataService } from '../data-service/data-service.service';
 import { CostFromDesigner, DesignerInfo, PmCostData, PmCostPerProject, ProjectInDesignerInfo, ProjectInTeamLeads, ProjectModel, ProjectPM, ProjectTeamLead, ProjectWeekData, TeamLeadCostData } from '../models/Enteties';
+import { PanelService } from '../panel.service';
 import { AddPmToProjectDialog } from './ProjectDialogs/AddPMDialog';
 import { AddTeamLeadToProjectDialog } from './ProjectDialogs/AddTeamLeadDialog';
 
@@ -48,9 +50,44 @@ export class MainPageComponent implements OnInit {
 
 
   constructor(private _formBuilder: FormBuilder, private dataService: DataService,
-                public matDialog: MatDialog) { }
+                public matDialog: MatDialog, private panelService: PanelService) { }
 
   ngOnInit(): void {
+    this.panelService.panelChanged.subscribe(v=> this.activePanel = v);
+    this.dataService.getAllDesigners()
+      .subscribe(data=>{
+        var desData = data.map(d=>{
+          d.specialization != null ? d.specializationName = this.specializations[d.specialization] : null
+          d.grade != null ? d.gradeName = this.grades[d.grade] : null
+          d.isTeamLead = d.position == 'TeamLead' ? this.PositionTeamlead[1] : this.PositionTeamlead[0];
+        })
+        this.designersData = data;
+      });
+
+    this.dataService.getBonusRates()
+      .subscribe(data=>{
+        const desData = data.map(d=>{
+          d.specialization != null ? d.specializationName = this.specializations[d.specialization] : null
+          d.grade != null ? d.gradeName = this.grades[d.grade] : null
+          return d;
+        })
+        this.bonusRatesData = desData;
+      });
+
+      this.dataService.getSalaryBases()
+      .subscribe(data=>{
+        const desData = data.map(d=>{
+          d.specialization != null ? d.specializationName = this.specializations[d.specialization] : null
+          return d;
+        })
+        this.salaryBaseData = desData;
+      });
+
+
+
+
+
+
   }
 
   /*
@@ -59,6 +96,8 @@ export class MainPageComponent implements OnInit {
 
   firstFormGroup: FormGroup = this._formBuilder.group({firstCtrl: ['']});
   date = new FormControl(moment());
+  activePanel: string = 'calculate'
+
 
   setMonthAndYear(normalizedMonthAndYear: moment.Moment, datepicker: MatDatepicker<moment.Moment>) {
     const ctrlValue = this.date.value!;
@@ -531,6 +570,93 @@ export class MainPageComponent implements OnInit {
 
       }
 
+
+
+      /// Designers
+
+
+    designersData : any[] = []
+    designersColumnsSchema: any[] = [
+      { key: 'firstName', type: 'text', label: 'Ім\'я'},
+      { key: 'lastName', type: 'text', label: 'Прізвище'},
+      { key: 'specializationName', type: 'spec', label: 'Спеціалізація'},
+      { key: 'gradeName', type: 'grade', label: 'Грейд'},
+      { key: 'isTeamLead', type: 'position', label: 'Чи тімлід'},
+      { key: "isEdit", type: "isEdit", label: "" }
+    ]
+    displayedDesignersColumns: string[] = this.designersColumnsSchema.map(col => col.key);
+
+    grades = [ "Junior", "Junior Plus",  "Middle Minus", "Middle", "Middle Plus", "Senior Minus", "Senior","Senior Plus"]
+    specializations = ["Web Design", "UI/UX Design", "Graph Design","Strategy"]
+    PositionTeamlead = ["Ні", "Так"]
+
+
+    addNewDesigner(){
+        const newRow = {
+          id: this.designersData.reduce((a, c)=> a > c.id ? a : c.id, 0) + 1,
+          firstName: "",
+          lastName: "",
+          position: "Designer",
+          isTeamLead: 'Ні',
+          grade: 0,
+          gradeName: "Junior",
+          specialization: 0,
+          specializationName: "Web Design",
+          teamWorkId: "",
+          isEdit: true,
+
+        };
+        this.designersData = [newRow, ...this.designersData];
+    }
+
+    removeDesigner(id : number){
+      this.designersData = this.designersData.filter((u) => u.id !== id);
+    }
+
+    connectDesiner(designer : any){
+        this.matDialog.open(ConnectDesignerComponent)
+        .afterClosed().subscribe(r=>{
+          if(r == ''){
+            return;
+          }
+          this.dataService.getIdByEmail(r).subscribe(id=>{ designer.teamWorkId = '' + id; console.log(designer); })
+        })
+    }
+
+    saveDesignerChanges(){
+      var data = this.designersData.map(d=>{
+          d.grade = this.grades.findIndex(g=> g === d.gradeName)
+          d.specialization = this.specializations.findIndex(s=> s == d.specializationName)
+          d.position = d.isTeamLead == "Ні" ? "Designer" : "TeamLead"
+
+          return d;
+      })
+      this.dataService.UpdateDesignersData(data).subscribe(v=>console.log(v));
+    }
+
+    //paymant
+    bonusRatesData : any[] = []
+    bonusRatesColumnsSchema: any[] = [
+      { key: 'specializationName', type: 'label', label: 'Спеціалізація'},
+      { key: 'gradeName', type: 'label', label: 'Грейд'},
+      { key: 'base', type: 'number', label: 'Значення'},
+      { key: "isEdit", type: "isEdit", label: "" }
+    ]
+    displayedBonusRatesColumns: string[] = this.bonusRatesColumnsSchema.map(col => col.key);
+
+
+    salaryBaseData : any[] = []
+    salaryBaseColumnsSchema: any[] = [
+      { key: 'specializationName', type: 'label', label: 'Спеціалізація'},
+      { key: 'base', type: 'number', label: 'Значення'},
+      { key: "isEdit", type: "isEdit", label: "" }
+    ]
+    displayedsalaryBaseColumns: string[] = this.salaryBaseColumnsSchema.map(col => col.key);
+
+    savePaymentData(){
+      this.dataService.updateBonusRates(this.bonusRatesData).subscribe(v=>console.log(v));
+      this.dataService.updateSalaryBases(this.salaryBaseData).subscribe(v=>console.log(v));
+    }
 }
 
 
