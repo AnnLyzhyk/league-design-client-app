@@ -9,8 +9,9 @@ export class DataService {
 
 
 
- // private baseUrl = "http://localhost:5003/api/";
- private baseUrl = "https://ldsalaryapi.azurewebsites.net/api/";
+
+  private baseUrl = "http://localhost:5003/api/";
+ // private baseUrl = "https://ldsalaryapi.azurewebsites.net/api/";
   constructor(private http: HttpClient) { }
 
 
@@ -96,6 +97,10 @@ export class DataService {
 
   updateSalaryBases(data: SalaryBasesModel[]) {
     return this.http.post(this.baseUrl + "SystemData/UpdateSalaryBases", data);
+  }
+
+  getExcelData(data: any[]) {
+    return this.http.post(this.baseUrl + "SalaryCalculator/GetExcelFile", data,{responseType: 'blob'});
   }
 
 }

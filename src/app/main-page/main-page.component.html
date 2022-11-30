@@ -45,11 +45,13 @@
           <mat-label>Кількість робочих годин в місяці</mat-label>
           <input matInput [(ngModel)]="monthWorkHours" (change)="onWorkHoursChange()" >
         </mat-form-field>
+        <button mat-button (click)="getDataForExel()">Завантажити файлом</button>
       <mat-expansion-panel>
         <mat-expansion-panel-header>
           <mat-panel-title>
             Дані по кожному дизайнеру
           </mat-panel-title>
+
         </mat-expansion-panel-header>
 
       <div *ngFor="let designer of designersList">

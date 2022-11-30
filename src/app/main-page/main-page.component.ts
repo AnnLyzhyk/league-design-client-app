@@ -5,6 +5,7 @@ import { MAT_MOMENT_DATE_ADAPTER_OPTIONS, MomentDateAdapter } from '@angular/mat
 import { DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE } from '@angular/material/core';
 import { MatDatepicker } from '@angular/material/datepicker';
 import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import * as moment from 'moment';
 import { map, Observable } from 'rxjs';
 import { ConnectDesignerComponent } from '../connect-designer/connect-designer.component';
@@ -50,7 +51,7 @@ export class MainPageComponent implements OnInit {
 
 
   constructor(private _formBuilder: FormBuilder, private dataService: DataService,
-                public matDialog: MatDialog, private panelService: PanelService) { }
+                public matDialog: MatDialog, private panelService: PanelService, private _snackBar: MatSnackBar) { }
 
   ngOnInit(): void {
     this.panelService.panelChanged.subscribe(v=> this.activePanel = v);
@@ -568,6 +569,25 @@ export class MainPageComponent implements OnInit {
             this.hoursPerWeekData = p;
           })
 
+      }
+
+      getDataForExel(){
+        var temp: any[] = []
+        this.designersList.forEach(d=>{
+          var source = ((this as any)["projects_" + d.id] as ProjectInDesignerInfo[])
+          temp.push(source)
+        });
+        this.dataService.getExcelData(temp).subscribe(r =>{
+          const a = document.createElement('a');
+          a.setAttribute('style', 'display:none;');
+          document.body.appendChild(a);
+          a.href = URL.createObjectURL(r);
+          a.download = "Дані по дизайнерам.xlsx";
+          a.target = '_blank';
+          a.click();
+          document.body.removeChild(a);
+          this._snackBar.open("Файл завантажено", "", {duration: 3000})
+        })
       }
 
 
