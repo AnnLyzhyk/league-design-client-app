@@ -171,3 +171,11 @@ export interface SalaryBasesModel
   specializationName: string,
   base: number
 }
+
+export interface CustomSalaryBasesModel
+{
+  firstName: string,
+  lastName: string,
+  base: number,
+  teamWorkId: string
+}

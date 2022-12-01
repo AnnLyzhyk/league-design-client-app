@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { BonusRateModel, Designer, DesignerEntity, DesignerInfo, ProjectInDesignerInfo, ProjectModel, ProjectPM, ProjectTeamLead, ProjectWeekData, SalaryBasesModel } from '../models/Enteties';
+import { BonusRateModel, CustomSalaryBasesModel, Designer, DesignerEntity, DesignerInfo, ProjectInDesignerInfo, ProjectModel, ProjectPM, ProjectTeamLead, ProjectWeekData, SalaryBasesModel } from '../models/Enteties';
 
 @Injectable({
   providedIn: 'root'
@@ -102,5 +102,15 @@ export class DataService {
   getExcelData(data: any[]) {
     return this.http.post(this.baseUrl + "SalaryCalculator/GetExcelFile", data,{responseType: 'blob'});
   }
+
+  getCustomSalaryBases() {
+    return this.http.get<CustomSalaryBasesModel[]>(this.baseUrl + "SystemData/GetCustomSalaryBases")
+  }
+
+  updateCustomSalaryBases(customSalaryBaseData: any[]) {
+    return this.http.post(this.baseUrl + "SystemData/UpdateCustomSalaryBases", customSalaryBaseData);
+  }
+
+
 
 }

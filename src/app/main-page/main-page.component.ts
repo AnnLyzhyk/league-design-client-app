@@ -63,6 +63,16 @@ export class MainPageComponent implements OnInit {
           d.isTeamLead = d.position == 'TeamLead' ? this.PositionTeamlead[1] : this.PositionTeamlead[0];
         })
         this.designersData = data;
+        this.dataService.getCustomSalaryBases()
+        .subscribe(data=>{
+          data = data.map(d=>{
+            const f = d as any;
+            f.fullName = d.firstName + ' ' + d.lastName
+            f.designer = this.designersData.find(d=> d.teamWorkId == f.teamWorkId)
+             return f;
+          })
+          this.customSalaryBaseData = data;
+        });
       });
 
     this.dataService.getBonusRates()
@@ -83,8 +93,6 @@ export class MainPageComponent implements OnInit {
         })
         this.salaryBaseData = desData;
       });
-
-
 
 
 
@@ -607,7 +615,7 @@ export class MainPageComponent implements OnInit {
     displayedDesignersColumns: string[] = this.designersColumnsSchema.map(col => col.key);
 
     grades = [ "Junior", "Junior Plus",  "Middle Minus", "Middle", "Middle Plus", "Senior Minus", "Senior","Senior Plus"]
-    specializations = ["Web Design", "UI/UX Design", "Graph Design","Strategy"]
+    specializations = ["Web Design", "UI/UX Design", "Graph Design","Strategy", "Motion"]
     PositionTeamlead = ["Ні", "Так"]
 
 
@@ -676,6 +684,42 @@ export class MainPageComponent implements OnInit {
     savePaymentData(){
       this.dataService.updateBonusRates(this.bonusRatesData).subscribe(v=>console.log(v));
       this.dataService.updateSalaryBases(this.salaryBaseData).subscribe(v=>console.log(v));
+      this.dataService.updateCustomSalaryBases(this.customSalaryBaseData).subscribe(v=>console.log(v));
+    }
+
+
+    customSalaryBaseData : any[] = []
+    customSalaryBaseColumnsSchema: any[] = [
+      { key: 'fullName', type: 'label', label: 'fullName'},
+      { key: 'base', type: 'number', label: 'Значення'},
+      { key: "isEdit", type: "isEdit", label: "" }
+    ]
+    displayedCustomSalaryBaseColumns: string[] = this.customSalaryBaseColumnsSchema.map(col => col.key);
+
+    addNewCustomItem(){
+      const newRow = {
+        firstName: "",
+        lastName: "",
+        fullName: "",
+        designer: this.designersData[0],
+        base: 0,
+        teamWorkId: "",
+        isEdit: true,
+
+      };
+      this.customSalaryBaseData = [newRow, ...this.customSalaryBaseData];
+    }
+
+    onCustomSalartBaseSave(el: any){
+      el.fullName = el.designer.firstName + ' ' + el.designer.lastName;
+      el.firstName = el.designer.firstName;
+      el.lastName = el.designer.lastName;
+      el.teamWorkId = el.designer.teamWorkId;
+
+    }
+
+    removeCustomBase(teamWorkId: string){
+      this.customSalaryBaseData = this.customSalaryBaseData.filter((u) => u.teamWorkId !== teamWorkId);
     }
 }
 

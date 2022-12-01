@@ -468,9 +468,12 @@
 
 <div *ngIf="activePanel=='payments'">
   <div>
-    <div class="table-designers-header">
-      <span> Сітка бази бонусів</span>
-      <button class="button-add-row" mat-button (click)="savePaymentData()">Зберегти зміни</button>
+    <div class="table-designers-header" >
+        <span class="block-header">Довідники системи</span>
+        <button class="button-add-row" mat-button (click)="savePaymentData()">Зберегти зміни</button>
+    </div>
+    <div  class="table-designers-header" >
+      <span class="block-header"> Сітка бази бонусів</span>
     </div>
     <table mat-table [dataSource]="bonusRatesData">
       <ng-container [matColumnDef]="col.key" *ngFor="let col of bonusRatesColumnsSchema">
@@ -507,8 +510,8 @@
     </table>
   </div>
   <div>
-    <div>
-     <span>Сітка бази заробітньої плати</span>
+    <div class="table-designers-header" >
+     <span class="block-header">Сітка бази заробітньої плати</span>
     </div>
     <table mat-table [dataSource]="salaryBaseData">
       <ng-container [matColumnDef]="col.key" *ngFor="let col of salaryBaseColumnsSchema">
@@ -544,7 +547,52 @@
       <tr mat-row *matRowDef="let row; columns: displayedsalaryBaseColumns"></tr>
     </table>
   </div>
+  <div>
+    <div class="table-designers-header" >
+     <span class="block-header">Сітка не системної бази заробітньої плати</span>
+     <button class="button-add-row" mat-button (click)="addNewCustomItem()">Додати виключення</button>
+    </div>
+<table mat-table [dataSource]="customSalaryBaseData">
+      <ng-container [matColumnDef]="col.key" *ngFor="let col of customSalaryBaseColumnsSchema">
+        <th mat-header-cell *matHeaderCellDef>
+          {{ col.label }}
+        </th>
+        <td mat-cell *matCellDef="let element">
+          <div [ngSwitch]="col.type" *ngIf="!element.isEdit">
+            <div class="btn-edit" *ngSwitchCase="'isEdit'">
+              <button mat-button (click)="element.isEdit = !element.isEdit"> Змінити </button>
+            </div>
+            <span *ngSwitchDefault>
+              {{ element[col.key] }}
+            </span>
+          </div>
+          <div [ngSwitch]="col.type" *ngIf="element.isEdit">
+            <div class="btn-edit" *ngSwitchCase="'isEdit'">
+              <button mat-button (click)="element.isEdit = !element.isEdit;onCustomSalartBaseSave(element)">
+                Зберегти
+              </button>
+              <button mat-button class="button-remove" (click)="removeCustomBase(element.teamWorkId)" > Видалити </button>
+            </div>
 
+            <span *ngSwitchCase="'label'">
+              <mat-form-field  class="form-input" *ngSwitchCase="'label'"  appearance="standard" >
+                <mat-select  [(ngModel)]="element.designer"  >
+                  <mat-option *ngFor="let designer of designersData" [value]="designer">
+                    {{designer.firstName + " " + designer.lastName}}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+            </span>
+            <mat-form-field class="form-input" *ngSwitchDefault>
+              <input [type]="col.type" matInput [(ngModel)]="element[col.key]" />
+            </mat-form-field>
+          </div>
+        </td>
+      </ng-container>
+      <tr mat-header-row *matHeaderRowDef="displayedCustomSalaryBaseColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedCustomSalaryBaseColumns"></tr>
+    </table>
+  </div>
 
 
 </div>
